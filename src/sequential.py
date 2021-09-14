@@ -27,7 +27,7 @@ class Sequential:
     w_okT = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (k_index, o_index + 1))
 
     # learning
-    eta = 0.002  # learning rate
+    eta = 0.001  # learning rate
     delta_j = np.empty(j_index)
     delta_k = np.empty(k_index)[np.newaxis]
     DeltaW_ij = np.empty((i_index + 1, j_index))
@@ -60,7 +60,7 @@ class Sequential:
             self.w_okT = self.w_ok.T
 
             # TODO Make the vector sum up to 1.
-            self.o_k = self.o_k / np.linalg.norm(self.o_k)
+            self.o_k = self.o_k / np.sum(self.o_k)
 
             # print error
             # sqrt( sum (o_k[k] - y_train[k])^2 )
