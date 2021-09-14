@@ -21,17 +21,13 @@ class Sequential:
     o_i = np.empty(i_index + 1)  # input layer
     o_j = np.empty(j_index + 1)[np.newaxis]  # neurons j
     o_k = np.empty(k_index)  # output of output layer
-    # w_ij = np.full((i_index + 1, j_index), 1/28*28)
-    w_ij = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (i_index + 1, j_index))
-    # w_ijT = np.full((j_index, i_index + 1), 1/28*28)  # Transposed w_ij
-    w_ijT = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (j_index, i_index + 1))
-    # w_ok = np.full((o_index + 1, k_index), 1/10)
-    w_ok = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (o_index + 1, k_index))
-    # w_okT = np.full((k_index, o_index + 1), 1/10)  # Transposed w_ok
-    w_okT = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (k_index, o_index + 1))
+    w_ij = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (i_index + 1, j_index))
+    w_ijT = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (j_index, i_index + 1))
+    w_ok = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (o_index + 1, k_index))
+    w_okT = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (k_index, o_index + 1))
 
     # learning
-    eta = 1  # learning rate
+    eta = 0.002  # learning rate
     delta_j = np.empty(j_index)
     delta_k = np.empty(k_index)[np.newaxis]
     DeltaW_ij = np.empty((i_index + 1, j_index))
@@ -41,6 +37,7 @@ class Sequential:
         (n, x1, x2) = x_train.shape
 
         for x_train_akt in range(n):
+            print('Iteration: ' + str(x_train_akt))
             x_i = np.append(x_train[x_train_akt].flatten(), 1)
 
             # calculate delta_k
@@ -55,6 +52,16 @@ class Sequential:
             # calculate DeltaW_ij
             # 28*28+1x128 = 1 * (128,)(28*28+1)
             self.DeltaW_ij = -self.eta * np.matmul(x_i[np.newaxis].T, self.delta_j[np.newaxis])
+            # TODO remove this
+            #print('w_ij')
+            #print(self.w_ij)
+            #print('w_ok')
+            #print(self.w_ok)
+            #print('net_j')
+            #print(self.net_j)
+            #print('net_k')
+            #print(self.net_k)
+
             # Update weights
             self.w_ij += self.DeltaW_ij
             self.w_ijT = self.w_ij.T
@@ -62,20 +69,15 @@ class Sequential:
             self.w_okT = self.w_ok.T
 
             # TODO is this necessary ?
-            print('norm')
-            print(np.linalg.norm(self.o_k))
             self.o_k = self.o_k / np.linalg.norm(self.o_k)
 
             # print error
             # sqrt( sum (o_k[k] - y_train[k])^2 )
 
             tmp = self.o_k - y_train[x_train_akt]
-            print('o_k')
-            print(self.o_k)
-            print('y_train')
-            print(y_train[x_train_akt])
-            print('error')
-            print(np.sqrt(np.dot(tmp, tmp)))
+            print('o_k: ' + str(self.o_k))
+            print('y_train: ' + str(y_train[x_train_akt]))
+            print('error: ' + str(np.sqrt(np.dot(tmp, tmp))))
 
         # TODO update transposed weights.
 
