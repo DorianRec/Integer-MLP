@@ -21,10 +21,14 @@ class Sequential:
     o_i = np.empty(i_index + 1)  # input layer
     o_j = np.empty(j_index + 1)[np.newaxis]  # neurons j
     o_k = np.empty(k_index)  # output of output layer
-    w_ij = np.full((i_index + 1, j_index), 0.5)
-    w_ijT = np.full((j_index, i_index + 1), 0.5)  # Transposed w_ij
-    w_ok = np.full((o_index + 1, k_index), 0.5)
-    w_okT = np.full((k_index, o_index + 1), 0.5)  # Transposed w_ok
+    # w_ij = np.full((i_index + 1, j_index), 1/28*28)
+    w_ij = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (i_index + 1, j_index))
+    # w_ijT = np.full((j_index, i_index + 1), 1/28*28)  # Transposed w_ij
+    w_ijT = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (j_index, i_index + 1))
+    # w_ok = np.full((o_index + 1, k_index), 1/10)
+    w_ok = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (o_index + 1, k_index))
+    # w_okT = np.full((k_index, o_index + 1), 1/10)  # Transposed w_ok
+    w_okT = np.fromfunction(lambda i, j: (-0.25) + 0.5 * ((i + j) % 2), (k_index, o_index + 1))
 
     # learning
     eta = 1  # learning rate
