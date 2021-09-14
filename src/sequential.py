@@ -52,15 +52,6 @@ class Sequential:
             # calculate DeltaW_ij
             # 28*28+1x128 = 1 * (128,)(28*28+1)
             self.DeltaW_ij = -self.eta * np.matmul(x_i[np.newaxis].T, self.delta_j[np.newaxis])
-            # TODO remove this
-            #print('w_ij')
-            #print(self.w_ij)
-            #print('w_ok')
-            #print(self.w_ok)
-            #print('net_j')
-            #print(self.net_j)
-            #print('net_k')
-            #print(self.net_k)
 
             # Update weights
             self.w_ij += self.DeltaW_ij
@@ -68,7 +59,7 @@ class Sequential:
             self.w_ok += self.DeltaW_ok
             self.w_okT = self.w_ok.T
 
-            # TODO is this necessary ?
+            # TODO Make the vector sum up to 1.
             self.o_k = self.o_k / np.linalg.norm(self.o_k)
 
             # print error
@@ -103,3 +94,21 @@ class Sequential:
         self.o_k = self.net_k
 
         return self.o_k
+
+    def evaluate(self, x_test, y_test):
+        (n, x1, x2) = x_test.shape
+        (n1, y1) = y_test.shape
+        assert n == n1
+        error_vector = np.empty(n)
+        for i in range(n):
+            o_i = self.predict(x_test[i])
+            diff = y_test[i] - o_i
+            error_vector[i] = 1/2 * np.dot(diff, diff)
+
+        print('Evaluation:')
+        print('Test dataset: ' + str(n))
+        print('Average error: ' + str(np.average(error_vector)))
+        print('Maximum error: ' + str(np.max(error_vector)))
+        print('Minimum error: ' + str(np.min(error_vector)))
+
+        return np.sum(error_vector)

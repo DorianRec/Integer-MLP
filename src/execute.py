@@ -10,7 +10,7 @@ input_shape = (28, 28, 1)
 # the data, split between train and test sets
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 # TODO remove (test purposes)
-(x_train, y_train), (x_test, y_test) = (x_train[0:5001], y_train[0:5001]), (x_test[0:1001], y_test[0:1001])
+(x_train, y_train), (x_test, y_test) = (x_train[0:5001], y_train[0:5001]), (x_test, y_test)
 # Scale images to the [0, 1] range
 x_train = x_train.astype("float32") / 128 - 1
 x_test = x_test.astype("float32") / 128 - 1
@@ -49,6 +49,7 @@ y_test = y_test_new
 ### Train the model
 
 model.fit(x_train, y_train)
+model.evaluate(x_test, y_test)
 
 ### Evaluate the model
 
