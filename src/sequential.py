@@ -1,7 +1,14 @@
 import numpy as np
+import scipy
 
 
 class Sequential:
+    # We used:
+    # NN Formulars: https://de.wikipedia.org/wiki/Backpropagation
+    # softmax = scipy.special.softmax
+    # softmax derivative: partial * E / partial w_ij = o_i * (softmax(net_j) - y_j)
+    # See here: https://stats.stackexchange.com/questions/235528/backpropagation-with-softmax-cross-entropy
+
     # i = 0, ..., 28*28+1 -1
     # j = 0, ..., 128 -1
     # o = 0, ..., 128+1 -1
@@ -27,7 +34,7 @@ class Sequential:
     w_okT = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (k_index, o_index + 1))
 
     # learning
-    eta = 0.001  # learning rate
+    eta = 0.002  # learning rate
     delta_j = np.empty(j_index)
     delta_k = np.empty(k_index)[np.newaxis]
     DeltaW_ij = np.empty((i_index + 1, j_index))
@@ -42,10 +49,16 @@ class Sequential:
 
             # calculate delta_k
             prediction = (self.predict(x_train[x_train_akt]))
-            self.delta_k = (lambda x: 2 * x + 1)(self.net_k) * (prediction - y_train[x_train_akt])
+            # TODO (lambda x: 2 * x + 1)(self.net_k) should be wrong
+            # TODO softmax derivative
+            # self.delta_k = (prediction - y_train[x_train_akt])
+            # softmax(net_j) - y_i
+            self.delta_k = self.o_k - y_train[x_train_akt]
             # calculate DeltaW_ok
             # 129x10 = 1 * (129,) (10,)
-            self.DeltaW_ok = -self.eta * np.matmul(self.o_j[np.newaxis].T, self.delta_k[np.newaxis])
+            # self.DeltaW_ok = -self.eta * np.matmul(self.o_j[np.newaxis].T, self.delta_k[np.newaxis])
+            # o_i * (softmax(net_j) - y_j)
+            self.DeltaW_ok = -self.eta * self.o_j[np.newaxis].T * self.delta_k.T[np.newaxis]
             # calculate delta_j
             for j in range(self.j_index):
                 self.delta_j[j] = (lambda x: 2 * x + 1)(self.net_j[j]) * np.dot(self.delta_k, self.w_ok[j])
@@ -59,22 +72,19 @@ class Sequential:
             self.w_ok += self.DeltaW_ok
             self.w_okT = self.w_ok.T
 
-            # TODO Make the vector sum up to 1.
-            self.o_k = self.o_k / np.sum(self.o_k)
+            # TODO Move to correct place
+            # self.o_k = self.o_k / np.sum(self.o_k)
 
             # print error
             # sqrt( sum (o_k[k] - y_train[k])^2 )
 
-            tmp = self.o_k - y_train[x_train_akt]
             print('o_k: ' + str(self.o_k))
             print('y_train: ' + str(y_train[x_train_akt]))
-            print('error: ' + str(np.sqrt(np.dot(tmp, tmp))))
-
-        # TODO update transposed weights.
+            tmp = y_train[x_train_akt] - self.o_k
+            print('Quadratic error: ' + str(0.5 * np.dot(tmp, tmp)))
 
     # Takes shape (28, 28)
     def predict(self, x_test):
-
         assert x_test.shape == (28, 28)
 
         # calculate o_i
@@ -85,13 +95,16 @@ class Sequential:
             self.net_j[j] = np.dot(self.o_i, self.w_ijT[j])
 
         # calculate o_j
+        # Apply x^2 + x to net_j
         self.o_j = np.append(list(map(lambda x: x ** 2 + x, self.net_j)), [self.bias_2])
 
         # calculate net_k
         for k in range(self.k_index):
             self.net_k[k] = np.dot(self.o_j, self.w_okT[k])
         # calculate o_k
-        self.o_k = self.net_k
+        # TODO add softmax
+        self.o_k = scipy.special.softmax(self.net_k)
+        # self.o_k = self.net_k
 
         return self.o_k
 
@@ -103,7 +116,7 @@ class Sequential:
         for i in range(n):
             o_i = self.predict(x_test[i])
             diff = y_test[i] - o_i
-            error_vector[i] = 1/2 * np.dot(diff, diff)
+            error_vector[i] = 1 / 2 * np.dot(diff, diff)
 
         print('Evaluation:')
         print('Test dataset: ' + str(n))
