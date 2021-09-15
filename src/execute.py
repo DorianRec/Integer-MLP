@@ -25,14 +25,6 @@ print(x_test.shape[0], "test samples")
 
 model = Sequential()
 
-### Train the model
-
-# batch_size = 128
-# epochs = 15
-
-# model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
-# model.compile()
-
 ### set up data
 
 y_test_old = y_test
@@ -51,15 +43,13 @@ y_test = y_test_new
 ### Train the model
 
 model.fit(x_train, y_train)
-model.evaluate(x_test, y_test, y_test_old)
 
 ### Evaluate the model
 
-# score = model.evaluate(x_test, y_test, verbose=0)
-# print("Test loss:", score[0])
-# print("Test accuracy:", score[1])
+score = model.evaluate(x_test, y_test, y_test_old)
+print("Test loss:", score[0])
+print("Test accuracy:", score[1])
 
 ### Model prediction
 
 # pred = model.predict(x_test[0:1])
-# pred = model.predict()

@@ -5,14 +5,11 @@ import scipy
 class Sequential:
     # We used:
     # NN Formulars: https://de.wikipedia.org/wiki/Backpropagation
-    # softmax = scipy.special.softmax
-    # softmax derivative: partial * E / partial w_ij = o_i * (softmax(net_j) - y_j)
-    # See here: https://stats.stackexchange.com/questions/235528/backpropagation-with-softmax-cross-entropy
-
-    # i = 0, ..., 28*28+1 -1
-    # j = 0, ..., 128 -1
-    # o = 0, ..., 128+1 -1
-    # k = 0, ..., 10 -1
+    # approximation of relu(x):=max(o,x): x^2 + x
+    # softmax(x) := e^(x - max(x)) / sum(e^(x - max(x))
+    # Implemented: softmax = scipy.special.softmax
+    # Implemented: softmax derivative: partial * E / partial w_ij = o_i * (softmax(net_j) - y_j)
+    # (See here) https://stats.stackexchange.com/questions/235528/backpropagation-with-softmax-cross-entropy
 
     # indices
     i_index = 28 * 28
@@ -47,23 +44,19 @@ class Sequential:
             print('Iteration: ' + str(x_train_akt))
             x_i = np.append(x_train[x_train_akt].flatten(), 1)
 
-            # calculate delta_k
+            # First call the prediction:
             prediction = (self.predict(x_train[x_train_akt]))
-            # TODO (lambda x: 2 * x + 1)(self.net_k) should be wrong
-            # TODO softmax derivative
-            # self.delta_k = (prediction - y_train[x_train_akt])
-            # softmax(net_j) - y_i
+
+            # calculate delta_k
+            # softmax(net_k) - y_o
             self.delta_k = self.o_k - y_train[x_train_akt]
             # calculate DeltaW_ok
-            # 129x10 = 1 * (129,) (10,)
-            # self.DeltaW_ok = -self.eta * np.matmul(self.o_j[np.newaxis].T, self.delta_k[np.newaxis])
-            # o_i * (softmax(net_j) - y_j)
-            self.DeltaW_ok = -self.eta * self.o_j[np.newaxis].T * self.delta_k.T[np.newaxis]
+            # DeltaW_ok = o_o * (softmax(net_k) - y_k)
+            self.DeltaW_ok = -self.eta * np.matmul(self.o_j[np.newaxis].T, self.delta_k[np.newaxis])
             # calculate delta_j
             for j in range(self.j_index):
                 self.delta_j[j] = (lambda x: 2 * x + 1)(self.net_j[j]) * np.dot(self.delta_k, self.w_ok[j])
             # calculate DeltaW_ij
-            # 28*28+1x128 = 1 * (128,)(28*28+1)
             self.DeltaW_ij = -self.eta * np.matmul(x_i[np.newaxis].T, self.delta_j[np.newaxis])
 
             # Update weights
@@ -71,12 +64,6 @@ class Sequential:
             self.w_ijT = self.w_ij.T
             self.w_ok += self.DeltaW_ok
             self.w_okT = self.w_ok.T
-
-            # TODO Move to correct place
-            # self.o_k = self.o_k / np.sum(self.o_k)
-
-            # print error
-            # sqrt( sum (o_k[k] - y_train[k])^2 )
 
             print('o_k: ' + str(self.o_k))
             print('y_train: ' + str(y_train[x_train_akt]))
@@ -102,9 +89,7 @@ class Sequential:
         for k in range(self.k_index):
             self.net_k[k] = np.dot(self.o_j, self.w_okT[k])
         # calculate o_k
-        # TODO add softmax
         self.o_k = scipy.special.softmax(self.net_k)
-        # self.o_k = self.net_k
 
         return self.o_k
 
@@ -114,20 +99,21 @@ class Sequential:
         assert n == n1
         # This contains the quadratic error: 1/2 * sum (y_i - o_k)^2
         error_vector = np.empty(n)
+        # This contains the loss
+        loss_vector = np.empty(n)
         # This contains the guesses
         guess_vector = np.empty(n)
         for i in range(n):
             o_k = self.predict(x_test[i])
             diff = y_test[i] - o_k
             error_vector[i] = 1 / 2 * np.dot(diff, diff)
+            loss_vector[i] = -np.mean(y_test[i] * np.log(o_k.T + 1e-8))
             guess_vector[i] = (np.argmax(o_k) == y_test_old[i])
         correct_guesses = np.count_nonzero(guess_vector)
 
         print('Evaluation:')
         print('Test dataset: ' + str(n))
-        print('Correct guesses: ' + str(correct_guesses) + ' / ' + str(n) + ', ' + str(correct_guesses/n*100) + '%.')
-        print('Average error: ' + str(np.average(error_vector)))
-        print('Maximum error: ' + str(np.max(error_vector)))
-        print('Minimum error: ' + str(np.min(error_vector)))
+        print(
+            'Correct guesses: ' + str(correct_guesses) + ' / ' + str(n) + ', ' + str(correct_guesses / n * 100) + '%.')
 
-        return np.sum(error_vector)
+        return np.average(error_vector), np.average(loss_vector)
