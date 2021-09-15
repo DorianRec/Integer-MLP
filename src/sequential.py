@@ -108,18 +108,24 @@ class Sequential:
 
         return self.o_k
 
-    def evaluate(self, x_test, y_test):
+    def evaluate(self, x_test, y_test, y_test_old):
         (n, x1, x2) = x_test.shape
         (n1, y1) = y_test.shape
         assert n == n1
+        # This contains the quadratic error: 1/2 * sum (y_i - o_k)^2
         error_vector = np.empty(n)
+        # This contains the guesses
+        guess_vector = np.empty(n)
         for i in range(n):
-            o_i = self.predict(x_test[i])
-            diff = y_test[i] - o_i
+            o_k = self.predict(x_test[i])
+            diff = y_test[i] - o_k
             error_vector[i] = 1 / 2 * np.dot(diff, diff)
+            guess_vector[i] = (np.argmax(o_k) == y_test_old[i])
+        correct_guesses = np.count_nonzero(guess_vector)
 
         print('Evaluation:')
         print('Test dataset: ' + str(n))
+        print('Correct guesses: ' + str(correct_guesses) + ' / ' + str(n) + ', ' + str(correct_guesses/n*100) + '%.')
         print('Average error: ' + str(np.average(error_vector)))
         print('Maximum error: ' + str(np.max(error_vector)))
         print('Minimum error: ' + str(np.min(error_vector)))
