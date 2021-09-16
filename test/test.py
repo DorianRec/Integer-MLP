@@ -1,15 +1,16 @@
 import numpy as np
-from sequential import Sequential
+from Sequential import Sequential
 
+# TODO This tests are no longer working!
 
 # This tests model.predict on np.ones((28,28))
 def prediction_test1():
     # model
     model = Sequential()
-    model.w_ij = np.ones((model.i_index + 1, model.j_index))
-    model.w_ijT = np.ones((model.j_index, model.i_index + 1))
-    model.w_ok = np.ones((model.o_index + 1, model.k_index))
-    model.w_okT = np.ones((model.k_index, model.o_index + 1))
+    model.w_ij = np.ones((model.I_INDEX + 1, model.J_INDEX))
+    model.w_ijT = np.ones((model.J_INDEX, model.I_INDEX + 1))
+    model.w_ok = np.ones((model.O_INDEX + 1, model.K_INDEX))
+    model.w_okT = np.ones((model.K_INDEX, model.O_INDEX + 1))
     # learning
     model.eta = 1
 
@@ -29,10 +30,10 @@ def prediction_test1():
 def prediction_test2():
     # model
     model = Sequential()
-    model.w_ij = np.ones((model.i_index + 1, model.j_index))
-    model.w_ijT = np.ones((model.j_index, model.i_index + 1))
-    model.w_ok = np.ones((model.o_index + 1, model.k_index))
-    model.w_okT = np.ones((model.k_index, model.o_index + 1))
+    model.w_ij = np.ones((model.I_INDEX + 1, model.J_INDEX))
+    model.w_ijT = np.ones((model.J_INDEX, model.I_INDEX + 1))
+    model.w_ok = np.ones((model.O_INDEX + 1, model.K_INDEX))
+    model.w_okT = np.ones((model.K_INDEX, model.O_INDEX + 1))
     # learning
     model.eta = 1
 
@@ -53,13 +54,13 @@ def fit_test1():
     # model
     model = Sequential()
     # need two different copies (since it is one object)
-    old_w_ij = np.ones((model.i_index + 1, model.j_index))
-    model.w_ij = np.ones((model.i_index + 1, model.j_index))
-    model.w_ijT = np.ones((model.j_index, model.i_index + 1))
+    old_w_ij = np.ones((model.I_INDEX + 1, model.J_INDEX))
+    model.w_ij = np.ones((model.I_INDEX + 1, model.J_INDEX))
+    model.w_ijT = np.ones((model.J_INDEX, model.I_INDEX + 1))
     # need two different copies (since it is one object)
-    old_w_ok = np.ones((model.o_index + 1, model.k_index))
-    model.w_ok = np.ones((model.o_index + 1, model.k_index))
-    model.w_okT = np.ones((model.k_index, model.o_index + 1))
+    old_w_ok = np.ones((model.O_INDEX + 1, model.K_INDEX))
+    model.w_ok = np.ones((model.O_INDEX + 1, model.K_INDEX))
+    model.w_okT = np.ones((model.K_INDEX, model.O_INDEX + 1))
     # learning
     model.eta = 1
 

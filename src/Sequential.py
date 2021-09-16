@@ -13,30 +13,30 @@ class Sequential:
     # (See here) https://stats.stackexchange.com/questions/235528/backpropagation-with-softmax-cross-entropy
 
     # indices
-    i_index = 28 * 28
-    j_index = 128
-    o_index = 128
-    k_index = 10
+    I_INDEX = 28 * 28
+    J_INDEX = 128
+    O_INDEX = 128
+    K_INDEX = 10
 
     # neural net
-    bias_1 = 1
-    bias_2 = 1
-    net_j = np.empty(j_index)  # neurons j=0,..,127
-    net_k = np.empty(k_index)  # neurons k=0+128,...,9+128
-    o_i = np.empty(i_index + 1)  # input layer
-    o_j = np.empty(j_index + 1)[np.newaxis]  # neurons j
-    o_k = np.empty(k_index)  # output of output layer
-    w_ij = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (i_index + 1, j_index))
-    w_ijT = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (j_index, i_index + 1))
-    w_ok = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (o_index + 1, k_index))
-    w_okT = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (k_index, o_index + 1))
+    BIAS_1 = 1
+    BIAS_2 = 1
+    net_j = np.empty(J_INDEX)  # neurons j=0,..,127
+    net_k = np.empty(K_INDEX)  # neurons k=0+128,...,9+128
+    o_i = np.empty(I_INDEX + 1)  # input layer
+    o_j = np.empty(J_INDEX + 1)[np.newaxis]  # neurons j
+    o_k = np.empty(K_INDEX)  # output of output layer
+    w_ij = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (I_INDEX + 1, J_INDEX))
+    w_ijT = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (J_INDEX, I_INDEX + 1))
+    w_ok = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (O_INDEX + 1, K_INDEX))
+    w_okT = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (K_INDEX, O_INDEX + 1))
 
     # learning
     eta = 0.002  # learning rate
-    delta_j = np.empty(j_index)
-    delta_k = np.empty(k_index)[np.newaxis]
-    DeltaW_ij = np.empty((i_index + 1, j_index))
-    DeltaW_ok = np.empty((o_index + 1, k_index))
+    delta_j = np.empty(J_INDEX)
+    delta_k = np.empty(K_INDEX)[np.newaxis]
+    DeltaW_ij = np.empty((I_INDEX + 1, J_INDEX))
+    DeltaW_ok = np.empty((O_INDEX + 1, K_INDEX))
 
     def fit(self, x_train, y_train):
         (n, x1, x2) = x_train.shape
@@ -55,7 +55,7 @@ class Sequential:
             # DeltaW_ok = o_o * (softmax(net_k) - y_k)
             self.DeltaW_ok = -self.eta * np.matmul(self.o_j[np.newaxis].T, self.delta_k[np.newaxis])
             # calculate delta_j
-            for j in range(self.j_index):
+            for j in range(self.J_INDEX):
                 self.delta_j[j] = (lambda x: 2 * x + 1)(self.net_j[j]) * np.dot(self.delta_k, self.w_ok[j])
             # calculate DeltaW_ij
             self.DeltaW_ij = -self.eta * np.matmul(x_i[np.newaxis].T, self.delta_j[np.newaxis])
@@ -76,18 +76,18 @@ class Sequential:
         assert x_test.shape == (28, 28)
 
         # calculate o_i
-        self.o_i = np.append(x_test.flatten(), [self.bias_1])
+        self.o_i = np.append(x_test.flatten(), [self.BIAS_1])
 
         # calculate net_j
-        for j in range(self.j_index):
+        for j in range(self.J_INDEX):
             self.net_j[j] = np.dot(self.o_i, self.w_ijT[j])
 
         # calculate o_j
         # Apply x^2 + x to net_j
-        self.o_j = np.append(list(map(lambda x: x ** 2 + x, self.net_j)), [self.bias_2])
+        self.o_j = np.append(list(map(lambda x: x ** 2 + x, self.net_j)), [self.BIAS_2])
 
         # calculate net_k
-        for k in range(self.k_index):
+        for k in range(self.K_INDEX):
             self.net_k[k] = np.dot(self.o_j, self.w_okT[k])
         # calculate o_k
         self.o_k = scipy.special.softmax(self.net_k)
@@ -117,4 +117,4 @@ class Sequential:
         print(
             'Correct guesses: ' + str(correct_guesses) + ' / ' + str(n) + ', ' + str(correct_guesses / n * 100) + '%.')
 
-        return np.average(error_vector), np.average(loss_vector)
+        return np.average(loss_vector), np.average(error_vector)
