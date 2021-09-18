@@ -9,7 +9,7 @@ from layers.Input import Input
 import unittest
 
 
-class TestStringMethods(unittest.TestCase):
+class ModelTest(unittest.TestCase):
 
     def test_upper(self):
         self.assertEqual('foo'.upper(), 'FOO')
@@ -26,6 +26,7 @@ class TestStringMethods(unittest.TestCase):
             s.split(2)
 
     # Test, whether 1D shape is allowed
+    # TODO make this possibility more usable
     def test_1D_model1(self):
         inputs = Input(shape=np.array([42]))
         model = Model(inputs, inputs)

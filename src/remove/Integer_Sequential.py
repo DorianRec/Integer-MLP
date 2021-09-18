@@ -135,7 +135,6 @@ class Integer_Sequential:
 
         return self.o_k
 
-    # TODO Make this a method of abstract Sequential.
     def evaluate(self, x_test, y_test, y_test_old):
         (n, x1, x2) = x_test.shape
         (n1, y1) = y_test.shape

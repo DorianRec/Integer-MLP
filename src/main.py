@@ -38,7 +38,11 @@ for i in range(n):
 y_train = y_train_new
 y_test = y_test_new
 
+# TODO recognize args.
 if __name__ == '__main__':
+
+    ### Build the model
+
     inputs = Input(shape=(28, 28))
     x = Flatten()(inputs)
     x = Dense(128, activation="relu")(x)
@@ -50,5 +54,15 @@ if __name__ == '__main__':
     opt = Standard(learning_rate=0.01)
     model.compile(loss="mse", optimizer=opt)
 
+    ### Train the model
+
     model.fit(x_train, y_train)
     print(model.predict(np.ones((28, 28))))
+
+    ### Evaluate the model
+
+    ## TODO how to solve this "y_test, y_test_old " problem?
+    #score = model.evaluate(x_test, y_test, y_test_old)
+    #print("Test loss:", score[0])
+    ## TODO is accuracy = average quadratic error ?
+    #print("Test accuracy:", score[1])

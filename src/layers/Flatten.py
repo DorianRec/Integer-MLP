@@ -22,7 +22,7 @@ class Flatten(Layer):
 
         return self
 
-    def get_shape(self):
+    def get_output_shape(self):
         return math.prod(self.prev.shape)
 
     def get_params(self):

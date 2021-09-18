@@ -1,7 +1,8 @@
-import numpy as np
+from tabulate import tabulate
 
 from optimizers.Standard import Standard
 import tensorflow as tf
+
 
 class Model:
     inputs = None
@@ -21,13 +22,20 @@ class Model:
     def summary(self):
         assert self.inputs is not None
 
-        print("Layer type\tOutput Shape\tParam #")
-        print(self.inputs.summary())
+        data = []
+        layer = self.inputs
+        while layer is not None:
+            data.append(layer.summary())
+            layer = layer.nxt
+
+        print(tabulate(data, headers=['Layer type', 'Output Shape', 'Param #']))
 
     def compile(self, loss="", optimizer=None):
-        if loss != "":
-            # TODO implement
+        if loss == "mse":
+            self.loss = loss
+        else:
             pass
+
         if optimizer is not None:
             self.optimizer = optimizer
 
@@ -45,7 +53,6 @@ class Model:
             print('Actual:')
             print(y_train[i])
             print('mse')
-            # TODO is y the correct format ? [000010000] instead of 4
             print(tf.keras.losses.MeanSquaredError()(prediction, y_train[i]))
             layer = self.output
             while layer is not None:

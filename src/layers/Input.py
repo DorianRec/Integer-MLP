@@ -27,7 +27,7 @@ class Input(Layer):
         self.o_j = x_test
         return x_test
 
-    def get_shape(self):
+    def get_output_shape(self):
         return self.shape
 
     def get_params(self):

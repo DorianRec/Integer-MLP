@@ -44,7 +44,7 @@ class Dense(Layer):
         prev.nxt = self
 
         # Initialize
-        self.w_ij = self.kernel_initializer((self.prev.get_shape() + 1, self.output_shape))
+        self.w_ij = self.kernel_initializer((self.prev.get_output_shape() + 1, self.output_shape))
         self.w_ijT = self.w_ij.T
 
         return self
@@ -54,20 +54,14 @@ class Dense(Layer):
         # train previous one
         self.prev.fit(x_train, y_train)
 
-
-
     def predict(self, x_test):
         # Dont forget to append the bias=1
-        self.net_j = np.matmul(self.w_ijT, np.append(self.prev.predict(x_test), 1)[np.newaxis].T).squeeze()
+        self.net_j = np.matmul(self.w_ijT, np.append(self.prev.predict(x_test), 1)[np.newaxis].T).flatten()
         self.o_j = self.activation.activate(self.net_j)
         return self.o_j
 
-    def get_shape(self):
+    def get_output_shape(self):
         return self.w_ij.shape[1]
 
     def get_params(self):
         return math.prod(self.w_ij.shape)
-
-    # Returns the weights
-    def get_weights(self):
-        return self.w_ij

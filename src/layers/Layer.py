@@ -12,7 +12,7 @@ class Layer:
 
     delta_j = None
 
-    def get_shape(self):
+    def get_output_shape(self):
         pass
 
     def get_params(self):
@@ -28,8 +28,4 @@ class Layer:
 
     def summary(self):
         assert self.name != ""
-
-        if self.nxt is not None:
-            return self.name + "\t\t\t" + str(self.get_shape()) + "\t\t\t" + str(self.get_params()) + "\n" + self.nxt.summary()
-        else:
-            return self.name + "\t\t\t" + str(self.get_shape()) + "\t\t\t" + str(self.get_params()) + "\n"
+        return self.name, str(self.get_output_shape()), str(self.get_params())
