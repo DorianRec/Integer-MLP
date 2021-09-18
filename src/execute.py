@@ -1,9 +1,6 @@
 from tensorflow import keras
 import numpy as np
 
-from Integer_Sequential import Integer_Sequential
-from Sequential import Sequential
-
 # Model / data parameters
 num_classes = 10
 input_shape = (28, 28, 1)
@@ -13,8 +10,8 @@ input_shape = (28, 28, 1)
 # TODO remove (test purposes)
 (x_train, y_train), (x_test, y_test) = (x_train[0:10001], y_train[0:10001]), (x_test, y_test)
 # Scale images to the [0, 1] range
-#x_train = x_train.astype("float32") / 128 - 1
-#x_test = x_test.astype("float32") / 128 - 1
+x_train = x_train.astype("float32") / 128 - 1
+x_test = x_test.astype("float32") / 128 - 1
 # Make sure images have shape (28, 28, 1)
 #x_train = np.expand_dims(x_train, -1)
 #x_test = np.expand_dims(x_test, -1)
@@ -25,7 +22,7 @@ print(x_test.shape[0], "test samples")
 ### Build the model
 
 #model = Sequential()
-model = Integer_Sequential()
+#model = Integer_Sequential()
 
 ### set up data
 
@@ -52,7 +49,3 @@ score = model.evaluate(x_test, y_test, y_test_old)
 print("Test loss:", score[0])
 # TODO is accuracy = average quadratic error ?
 print("Test accuracy:", score[1])
-
-### Model prediction
-
-# pred = model.predict(x_test[0:1])

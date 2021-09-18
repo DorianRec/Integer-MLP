@@ -45,8 +45,10 @@ class Integer_Sequential:
     o_j = np.empty(J_INDEX + 1)[np.newaxis]  # neurons j
     o_k = np.empty(K_INDEX)  # output of output layer
     w_ij = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (I_INDEX + 1, J_INDEX))
+    w_ij *= W_IJ_FACTOR
     w_ijT = np.fromfunction(lambda i, j: (-0.02) + 0.04 * ((i + j) % 2), (J_INDEX, I_INDEX + 1))
     w_ok = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (O_INDEX + 1, K_INDEX))
+    w_ok *= W_OK_FACTOR
     w_okT = np.fromfunction(lambda i, j: (-0.015) + 0.03 * ((i + j) % 2), (K_INDEX, O_INDEX + 1))
 
     # learning
@@ -77,14 +79,15 @@ class Integer_Sequential:
             self.DeltaW_ok = -self.ETA * np.matmul(self.o_j[np.newaxis].T, self.delta_k[np.newaxis])
             # calculate delta_j
             for j in range(self.J_INDEX):
-                self.delta_j[j] = (lambda x: 2 * x + 1)(self.net_j[j]) * np.dot(self.delta_k, self.w_ok[j])
+                self.delta_j[j] = (lambda x: 2 * x + 1)(self.net_j[j]) * np.dot(self.delta_k,
+                                                                                self.w_ok[j] / self.W_OK_FACTOR)
             # calculate DeltaW_ij
             self.DeltaW_ij = -self.ETA * np.matmul(x_i[np.newaxis].T, self.delta_j[np.newaxis])
 
             # Update weights
-            self.w_ij += self.DeltaW_ij
+            self.w_ij += np.around(self.DeltaW_ij * self.W_IJ_FACTOR)
             self.w_ijT = self.w_ij.T
-            self.w_ok += self.DeltaW_ok
+            self.w_ok += np.around(self.DeltaW_ok * self.W_OK_FACTOR)
             self.w_okT = self.w_ok.T
 
             print('o_k: ' + str(self.o_k))
@@ -104,7 +107,7 @@ class Integer_Sequential:
         # calculate net_j
         # TODO np.around(self.w_ijT[j] * self.W_IJ_FACTOR)
         for j in range(self.J_INDEX):
-            self.net_j[j] = np.dot(self.o_i, np.around(self.w_ijT[j] * self.W_IJ_FACTOR))
+            self.net_j[j] = np.dot(self.o_i, self.w_ijT[j])
 
         # calculate o_j
         # Apply x^2 + x to net_j
@@ -116,9 +119,10 @@ class Integer_Sequential:
         # TODO let the weights be big and decrease in fitting.
         # TODO always safe the rounded value, instead of rounding on call! This is more realistic.
         for k in range(self.K_INDEX):
-            self.net_k[k] = np.dot(self.o_j, np.around(self.w_okT[k] * self.W_OK_FACTOR))
+            self.net_k[k] = np.dot(self.o_j, self.w_okT[k])
 
         # TODO decrypt here.
+
         # Fix variables
         # TODO why is this (astype("float32")) necessary ?
         self.o_i = self.o_i.astype("float32") / self.O_I_FACTOR
@@ -126,24 +130,12 @@ class Integer_Sequential:
         self.o_j /= (self.O_I_FACTOR * self.W_IJ_FACTOR) ** 2
         self.net_k /= (self.O_I_FACTOR * self.W_IJ_FACTOR) ** 2 * self.W_OK_FACTOR
 
-        #print('self.o_i')
-        #print(self.o_i)
-        #print('self.net_j')
-        #print(self.net_j)
-        #print('self.o_j')
-        #print(self.o_j)
-        #print('self.net_k')
-        #print(self.net_k)
-        #print('self.w_ij')
-        #print(self.w_ij)
-        #print('self.w_ok')
-        #print(self.w_ok)
-
         # calculate o_k
         self.o_k = scipy.special.softmax(self.net_k)
 
         return self.o_k
 
+    # TODO Make this a method of abstract Sequential.
     def evaluate(self, x_test, y_test, y_test_old):
         (n, x1, x2) = x_test.shape
         (n1, y1) = y_test.shape
